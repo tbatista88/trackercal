@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Limpar Cache - TrackerCal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 { color: #FF69B4; }
+        button {
+            background: linear-gradient(135deg, #FF1493, #FF69B4);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            cursor: pointer;
+            margin: 20px;
+        }
+        .success { color: #00ff88; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🧹 Limpar Service Worker e Cache</h1>
+    <p>Clique no botão abaixo para limpar o cache da app</p>
+    <button onclick="clearEverything()">🗑️ Limpar Cache</button>
+    <div id="status"></div>
+
+    <script>
+        async function clearEverything() {
+            const status = document.getElementById('status');
+            
+            // Desregistar service workers
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let reg of registrations) {
+                    await reg.unregister();
+                    status.innerHTML += '<p>✅ Service Worker desregistado</p>';
+                }
+            }
+            
+            // Limpar caches
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                for (let name of cacheNames) {
+                    await caches.delete(name);
+                    status.innerHTML += '<p>✅ Cache apagado: ' + name + '</p>';
+                }
+            }
+            
+            // Limpar localStorage (opcional - só dados da app)
+            // localStorage.clear();
+            
+            status.innerHTML += '<p class="success">🎉 Limpeza completa! Agora podes fechar esta página e abrir a app novamente.</p>';
+        }
+    </script>
+</body>
+</html>
