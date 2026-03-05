@@ -461,21 +461,32 @@ export function renderProducts(container, params = []) {
         document.body.appendChild(overlay);
 
         const scanner = new Html5Qrcode('scanner-container');
-        let scanning = true;
+        let isScanning = false;
+        let isClosing = false;
 
-        const closeModal = () => {
-            scanning = false;
-            scanner.stop().catch(() => { });
+        const closeModal = async () => {
+            if (isClosing) return;
+            isClosing = true;
+            
+            if (isScanning) {
+                try {
+                    await scanner.stop();
+                } catch (e) {
+                    // Scanner might already be stopped
+                }
+                isScanning = false;
+            }
+            
             overlay.remove();
         };
 
-        overlay.querySelector('#modal-close-scanner').addEventListener('click', closeModal);
+        overlay.querySelector('#modal-close-scanner').addEventListener('click', () => closeModal());
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) closeModal();
         });
 
-        overlay.querySelector('#btn-manual-barcode').addEventListener('click', () => {
-            closeModal();
+        overlay.querySelector('#btn-manual-barcode').addEventListener('click', async () => {
+            await closeModal();
             showManualBarcodeInput();
         });
 
@@ -484,16 +495,24 @@ export function renderProducts(container, params = []) {
                 { facingMode: 'environment' },
                 { fps: 10, qrbox: { width: 250, height: 100 }, aspectRatio: 1.0 },
                 async (decodedText) => {
-                    if (!scanning) return;
-                    scanning = false;
-                    await scanner.stop();
-                    closeModal();
+                    if (!isScanning || isClosing) return;
+                    isScanning = false;
+                    
+                    // Stop scanner first, then close modal and process
+                    try {
+                        await scanner.stop();
+                    } catch (e) {
+                        // Ignore stop errors
+                    }
+                    
+                    overlay.remove();
                     await processBarcode(decodedText);
                 }
             );
+            isScanning = true;
         } catch (err) {
             console.error('Scanner error:', err);
-            closeModal();
+            await closeModal();
             showToast('Impossible d\'accéder à la caméra', 'error');
             showManualBarcodeInput();
         }
