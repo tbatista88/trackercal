@@ -15,8 +15,8 @@ export default defineConfig({
         background_color: '#FFF0F5',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
+        scope: '/trackercal/',
+        start_url: '/trackercal/',
         icons: [
           {
             src: 'icons/icon-192.png',
