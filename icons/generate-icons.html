@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Ícones - TrackerCal</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        h1 {
+            background: linear-gradient(135deg, #FF1493, #FF69B4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            max-width: 600px;
+        }
+        canvas {
+            border-radius: 20px;
+            margin: 20px;
+            box-shadow: 0 10px 40px rgba(255,20,147,0.3);
+        }
+        .btn {
+            background: linear-gradient(135deg, #FF1493, #FF69B4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255,20,147,0.4);
+        }
+        .preview-grid {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .preview-item {
+            text-align: center;
+        }
+        .preview-item canvas {
+            margin: 10px;
+        }
+        .size-label {
+            color: #aaa;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 Gerador de Ícones TrackerCal</h1>
+    <p>Design futurista em tons de rosa</p>
+
+    <div class="container">
+        <div class="preview-grid">
+            <div class="preview-item">
+                <canvas id="canvas192" width="192" height="192"></canvas>
+                <div class="size-label">192x192px</div>
+            </div>
+            <div class="preview-item">
+                <canvas id="canvas512" width="512" height="512"></canvas>
+                <div class="size-label">512x512px</div>
+            </div>
+        </div>
+        
+        <button class="btn" onclick="downloadIcons()">📥 Download dos Ícones</button>
+    </div>
+
+    <script>
+        function drawIcon(ctx, size) {
+            const center = size / 2;
+            const scale = size / 512;
+            
+            // Background com gradiente
+            const bgGradient = ctx.createLinearGradient(0, 0, size, size);
+            bgGradient.addColorStop(0, '#FF1493');
+            bgGradient.addColorStop(0.5, '#FF69B4');
+            bgGradient.addColorStop(1, '#FFB6C1');
+            
+            ctx.fillStyle = bgGradient;
+            ctx.beginPath();
+            ctx.arc(center, center, 240 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Anel externo
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 3 * scale;
+            ctx.beginPath();
+            ctx.arc(center, center, 220 * scale, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 1 * scale;
+            ctx.beginPath();
+            ctx.arc(center, center, 210 * scale, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Marcas de radar
+            [180, 140, 100].forEach((radius, i) => {
+                ctx.strokeStyle = `rgba(255,255,255,${0.15 + i * 0.05})`;
+                ctx.lineWidth = 2 * scale;
+                ctx.beginPath();
+                ctx.arc(center, center, radius * scale, 0, Math.PI * 2);
+                ctx.stroke();
+            });
+            
+            // Marcas cruzadas
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.lineWidth = 1 * scale;
+            ctx.beginPath();
+            ctx.moveTo(center, 76 * scale);
+            ctx.lineTo(center, 436 * scale);
+            ctx.moveTo(76 * scale, center);
+            ctx.lineTo(436 * scale, center);
+            ctx.stroke();
+            
+            // Marcas nos 4 pontos
+            ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+            ctx.lineWidth = 4 * scale;
+            ctx.lineCap = 'round';
+            
+            // Top
+            ctx.beginPath();
+            ctx.moveTo(center, 36 * scale);
+            ctx.lineTo(center, 56 * scale);
+            ctx.stroke();
+            
+            // Bottom
+            ctx.beginPath();
+            ctx.moveTo(center, 476 * scale);
+            ctx.lineTo(center, 456 * scale);
+            ctx.stroke();
+            
+            // Left
+            ctx.beginPath();
+            ctx.moveTo(36 * scale, center);
+            ctx.lineTo(56 * scale, center);
+            ctx.stroke();
+            
+            // Right
+            ctx.beginPath();
+            ctx.moveTo(476 * scale, center);
+            ctx.lineTo(456 * scale, center);
+            ctx.stroke();
+            
+            // Elemento central - Gráfico de progresso
+            ctx.save();
+            ctx.translate(center, center);
+            
+            // Circulo de fundo do gráfico
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 8 * scale;
+            ctx.beginPath();
+            ctx.arc(0, 0, 70 * scale, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // Arco de progresso (brilhante)
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 8 * scale;
+            ctx.lineCap = 'round';
+            ctx.shadowColor = 'rgba(255,255,255,0.8)';
+            ctx.shadowBlur = 10 * scale;
+            ctx.beginPath();
+            ctx.arc(0, 0, 70 * scale, -Math.PI / 2, Math.PI);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            
+            // C central (Caloria)
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 12 * scale;
+            ctx.lineCap = 'round';
+            ctx.shadowColor = 'rgba(255,255,255,0.9)';
+            ctx.shadowBlur = 15 * scale;
+            ctx.beginPath();
+            ctx.arc(0, 0, 35 * scale, -Math.PI / 4, Math.PI / 4, true);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+            
+            // Ponto central brilhante
+            ctx.fillStyle = '#FFFFFF';
+            ctx.shadowColor = 'rgba(255,255,255,1)';
+            ctx.shadowBlur = 20 * scale;
+            ctx.beginPath();
+            ctx.arc(0, 0, 12 * scale, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            
+            // Raios de energia
+            ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+            ctx.lineWidth = 4 * scale;
+            ctx.lineCap = 'round';
+            
+            const rays = [
+                [80, -80, 95, -95],
+                [-80, -80, -95, -95],
+                [80, 80, 95, 95],
+                [-80, 80, -95, 95]
+            ];
+            
+            rays.forEach(([x1, y1, x2, y2]) => {
+                ctx.beginPath();
+                ctx.moveTo(x1 * scale, y1 * scale);
+                ctx.lineTo(x2 * scale, y2 * scale);
+                ctx.stroke();
+            });
+            
+            ctx.restore();
+            
+            // Hexágonos decorativos
+            function drawHexagon(x, y, opacity) {
+                ctx.fillStyle = `rgba(255,255,255,${opacity})`;
+                const r = 15 * scale;
+                ctx.beginPath();
+                for (let i = 0; i < 6; i++) {
+                    const angle = (Math.PI / 3) * i;
+                    const px = x + r * Math.cos(angle);
+                    const py = y + r * Math.sin(angle);
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            drawHexagon(400 * scale, 100 * scale, 0.4);
+            drawHexagon(100 * scale, 400 * scale, 0.3);
+        }
+        
+        // Desenhar em ambos os canvas
+        function render() {
+            const canvas192 = document.getElementById('canvas192');
+            const canvas512 = document.getElementById('canvas512');
+            
+            drawIcon(canvas192.getContext('2d'), 192);
+            drawIcon(canvas512.getContext('2d'), 512);
+        }
+        
+        function downloadCanvas(canvas, filename) {
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function downloadIcons() {
+            downloadCanvas(document.getElementById('canvas192'), 'icon-192.png');
+            setTimeout(() => {
+                downloadCanvas(document.getElementById('canvas512'), 'icon-512.png');
+            }, 100);
+        }
+        
+        render();
+    </script>
+</body>
+</html>

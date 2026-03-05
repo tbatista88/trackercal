@@ -1,0 +1,77 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradientes futuristas em tons de rosa -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF1493;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FF69B4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFB6C1;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="neonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFE4EC;stop-opacity:1" />
+    </linearGradient>
+    
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <filter id="strongGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circular com gradiente -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGradient)"/>
+  
+  <!-- Anel futurista externo -->
+  <circle cx="256" cy="256" r="220" stroke="white" stroke-width="3" opacity="0.3"/>
+  <circle cx="256" cy="256" r="210" stroke="white" stroke-width="1" opacity="0.2"/>
+  
+  <!-- Elementos decorativos futuristas -->
+  <path d="M 256 36 L 256 56" stroke="white" stroke-width="4" opacity="0.6" stroke-linecap="round"/>
+  <path d="M 256 476 L 256 456" stroke="white" stroke-width="4" opacity="0.6" stroke-linecap="round"/>
+  <path d="M 36 256 L 56 256" stroke="white" stroke-width="4" opacity="0.6" stroke-linecap="round"/>
+  <path d="M 476 256 L 456 256" stroke="white" stroke-width="4" opacity="0.6" stroke-linecap="round"/>
+  
+  <!-- Marcas de radar/tech -->
+  <circle cx="256" cy="256" r="180" stroke="white" stroke-width="2" opacity="0.15" fill="none"/>
+  <circle cx="256" cy="256" r="140" stroke="white" stroke-width="2" opacity="0.2" fill="none"/>
+  <circle cx="256" cy="256" r="100" stroke="white" stroke-width="2" opacity="0.25" fill="none"/>
+  
+  <!-- Linhas de grade sutis -->
+  <line x1="256" y1="76" x2="256" y2="436" stroke="white" stroke-width="1" opacity="0.1"/>
+  <line x1="76" y1="256" x2="436" y2="256" stroke="white" stroke-width="1" opacity="0.1"/>
+  
+  <!-- Ícone central - Caloria/Gráfico estilizado -->
+  <g transform="translate(256, 256)">
+    <!-- Gráfico circular de progresso -->
+    <circle cx="0" cy="0" r="70" stroke="white" stroke-width="8" opacity="0.3" fill="none"/>
+    <path d="M 0 -70 A 70 70 0 1 1 -49.5 -49.5" stroke="url(#neonGradient)" stroke-width="8" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+    
+    <!-- C central estilizado -->
+    <path d="M 25 -25 A 35 35 0 1 0 25 25" stroke="white" stroke-width="12" fill="none" stroke-linecap="round" filter="url(#strongGlow)"/>
+    
+    <!-- Ponto de energia -->
+    <circle cx="0" cy="0" r="12" fill="white" filter="url(#strongGlow)"/>
+    
+    <!-- Raios de energia futuristas -->
+    <path d="M 80 -80 L 95 -95" stroke="white" stroke-width="4" opacity="0.8" stroke-linecap="round"/>
+    <path d="M -80 -80 L -95 -95" stroke="white" stroke-width="4" opacity="0.8" stroke-linecap="round"/>
+    <path d="M 80 80 L 95 95" stroke="white" stroke-width="4" opacity="0.8" stroke-linecap="round"/>
+    <path d="M -80 80 L -95 95" stroke="white" stroke-width="4" opacity="0.8" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Hexágonos decorativos pequenos -->
+  <polygon points="400,100 410,115 400,130 380,130 370,115 380,100" fill="white" opacity="0.4"/>
+  <polygon points="100,380 110,395 100,410 80,410 70,395 80,380" fill="white" opacity="0.3"/>
+</svg>
