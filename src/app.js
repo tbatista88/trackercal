@@ -2,7 +2,7 @@
 // App Shell – Router & Navigation
 // ============================================
 
-import { hasProfile, getSettings, setTheme, getTheme, on } from './data/store.js';
+import { hasProfile, getSettings, setTheme, getTheme, on, shouldShowBackupReminder, markBackupReminderShown } from './data/store.js';
 import { renderOnboarding } from './views/onboarding.js';
 import { renderDashboard } from './views/dashboard.js';
 import { renderProducts } from './views/products.js';
@@ -24,10 +24,55 @@ const NAV_ITEMS = [
 // ============================================
 // Initialize
 // ============================================
+function checkBackupReminder() {
+    if (!shouldShowBackupReminder()) return;
+
+    markBackupReminderShown();
+
+    const existingReminder = document.querySelector('.backup-reminder');
+    if (existingReminder) existingReminder.remove();
+
+    const reminder = document.createElement('div');
+    reminder.className = 'backup-reminder';
+    reminder.innerHTML = `
+        <div class="backup-reminder-content">
+            <div class="backup-reminder-icon">🔄</div>
+            <div class="backup-reminder-title">Rappel de Sauvegarde</div>
+            <div class="backup-reminder-text">
+                Vos données sont stockées uniquement dans ce navigateur. 
+                En cas de suppression des données ou de changement d'appareil, vous pourriez tout perdre !
+            </div>
+            <div class="backup-reminder-text">
+                <b>Comment sauvegarder :</b><br>
+                1. Allez dans <b>Réglages</b> (⚙️)<br>
+                2. Cliquez sur <b>Exporter les Données</b><br>
+                3. Sauvegardez le fichier JSON en lieu sûr
+            </div>
+            <div class="backup-reminder-text backup-reminder-freq">
+                <b>Fréquence recommandée :</b> Une fois par semaine
+            </div>
+            <button class="btn btn-primary btn-block backup-reminder-btn">OK compris</button>
+        </div>
+    `;
+
+    reminder.querySelector('.backup-reminder-btn').addEventListener('click', () => {
+        reminder.remove();
+    });
+
+    document.body.appendChild(reminder);
+
+    setTimeout(() => {
+        reminder.classList.add('show');
+    }, 100);
+}
+
 function init() {
     // Apply saved theme
     const theme = getTheme();
     document.documentElement.setAttribute('data-theme', theme);
+
+    // Check for backup reminder
+    checkBackupReminder();
 
     // Listen for hash changes
     window.addEventListener('hashchange', handleRoute);

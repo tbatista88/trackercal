@@ -6,7 +6,8 @@ const KEYS = {
     PROFILE: 'tcv2_profile',
     PRODUCTS: 'tcv2_products',
     CONSUMPTIONS: 'tcv2_consumptions',
-    SETTINGS: 'tcv2_settings'
+    SETTINGS: 'tcv2_settings',
+    BACKUP_REMINDER: 'tcv2_backup_reminder'
 };
 
 // --- Helpers ---
@@ -240,9 +241,107 @@ export function exportDailyText(date) {
 }
 
 // ============================================
+// Data Export/Import
+// ============================================
+export function exportAllData() {
+    return {
+        version: '1.0',
+        exportedAt: new Date().toISOString(),
+        profile: getJSON(KEYS.PROFILE, null),
+        products: getJSON(KEYS.PRODUCTS, []),
+        consumptions: getJSON(KEYS.CONSUMPTIONS, []),
+        settings: getJSON(KEYS.SETTINGS, { theme: 'light', notifications: false })
+    };
+}
+
+export function importAllData(data) {
+    if (!data || !data.version) {
+        throw new Error('Invalid backup file format');
+    }
+
+    if (data.profile) {
+        setJSON(KEYS.PROFILE, data.profile);
+        emit('profile:updated', data.profile);
+    }
+
+    if (data.products && Array.isArray(data.products)) {
+        setJSON(KEYS.PRODUCTS, data.products);
+        emit('products:updated', data.products);
+    }
+
+    if (data.consumptions && Array.isArray(data.consumptions)) {
+        setJSON(KEYS.CONSUMPTIONS, data.consumptions);
+        emit('consumptions:updated', data.consumptions);
+    }
+
+    if (data.settings) {
+        setJSON(KEYS.SETTINGS, data.settings);
+        emit('settings:updated', data.settings);
+        if (data.settings.theme) {
+            document.documentElement.setAttribute('data-theme', data.settings.theme);
+        }
+    }
+
+    emit('data:imported');
+}
+
+// ============================================
 // Clear All Data
 // ============================================
 export function clearAllData() {
     Object.values(KEYS).forEach(key => localStorage.removeItem(key));
     emit('data:cleared');
+}
+
+// ============================================
+// Backup Reminder
+// ============================================
+const REMINDER_INTERVAL_DAYS = 2;
+
+export function getBackupReminderState() {
+    return getJSON(KEYS.BACKUP_REMINDER, {
+        lastReminderDate: null,
+        lastBackupDate: null,
+        hasShownFirstReminder: false
+    });
+}
+
+export function setBackupReminderState(data) {
+    const state = { ...getBackupReminderState(), ...data };
+    setJSON(KEYS.BACKUP_REMINDER, state);
+    return state;
+}
+
+export function shouldShowBackupReminder() {
+    const state = getBackupReminderState();
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+
+    if (!state.hasShownFirstReminder) {
+        const hasData = getProfile() || getConsumptions().length > 0 || getProducts().length > 0;
+        if (!hasData) return false;
+
+        return true;
+    }
+
+    if (!state.lastReminderDate) return true;
+
+    const lastReminder = new Date(state.lastReminderDate);
+    const daysSinceReminder = Math.floor((now - lastReminder) / (1000 * 60 * 60 * 24));
+
+    return daysSinceReminder >= REMINDER_INTERVAL_DAYS;
+}
+
+export function markBackupReminderShown() {
+    const state = getBackupReminderState();
+    setBackupReminderState({
+        lastReminderDate: new Date().toISOString().split('T')[0],
+        hasShownFirstReminder: true
+    });
+}
+
+export function markBackupDone() {
+    setBackupReminderState({
+        lastBackupDate: new Date().toISOString()
+    });
 }

@@ -2,7 +2,7 @@
 // Settings View
 // ============================================
 
-import { getProfile, setProfile, getSettings, setTheme, getTheme, clearAllData } from '../data/store.js';
+import { getProfile, setProfile, getSettings, setTheme, getTheme, clearAllData, exportAllData, importAllData } from '../data/store.js';
 import { calculateDailyTarget } from '../data/calories.js';
 import { showToast } from '../services/toast.js';
 import { navigate } from '../app.js';
@@ -92,6 +92,23 @@ export function renderSettings(container) {
             <button class="btn btn-danger btn-block btn-sm" id="btn-clear-data">
               🗑️ Supprimer toutes les données
             </button>
+          </div>
+          
+          <!-- Backup -->
+          <div class="card-glass mb-md">
+            <h3 style="font-size:var(--font-lg);margin-bottom:var(--space-sm);">📦 Sauvegarde</h3>
+            <p style="font-size:var(--font-sm);color:var(--text-tertiary);margin-bottom:var(--space-md);">
+              Exportez vos données pour ne pas les perdre. Importez une sauvegarde existante.
+            </p>
+            <div class="flex gap-sm">
+              <button class="btn btn-primary btn-sm" style="flex:1" id="btn-export-data">
+                📤 Exporter
+              </button>
+              <button class="btn btn-secondary btn-sm" style="flex:1" id="btn-import-data">
+                📥 Importer
+              </button>
+            </div>
+            <input type="file" id="file-import" accept=".json" style="display:none;" />
           </div>
           
           <!-- About -->
@@ -289,6 +306,55 @@ export function renderSettings(container) {
                 window.location.hash = '';
                 window.location.reload();
             }
+        });
+
+        // Export data
+        container.querySelector('#btn-export-data')?.addEventListener('click', () => {
+            try {
+                const data = exportAllData();
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                const date = new Date().toISOString().split('T')[0];
+                a.href = url;
+                a.download = `trackercal-backup-${date}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('Sauvegarde créée avec succès !', 'success');
+            } catch (err) {
+                showToast('Erreur lors de l\'exportation', 'error');
+            }
+        });
+
+        // Import data
+        container.querySelector('#btn-import-data')?.addEventListener('click', () => {
+            container.querySelector('#file-import')?.click();
+        });
+
+        container.querySelector('#file-import')?.addEventListener('change', async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+
+            try {
+                const text = await file.text();
+                const data = JSON.parse(text);
+
+                if (!data.version) {
+                    throw new Error('Format invalide');
+                }
+
+                if (confirm('Cette action remplacera toutes vos données actuelles. Voulez-vous continuer ?')) {
+                    importAllData(data);
+                    showToast('Données importées avec succès !', 'success');
+                    setTimeout(() => window.location.reload(), 1500);
+                }
+            } catch (err) {
+                showToast('Erreur : fichier invalide', 'error');
+            }
+
+            e.target.value = '';
         });
     }
 
